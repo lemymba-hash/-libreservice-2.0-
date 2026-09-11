@@ -1,0 +1,8 @@
+node_modules/
+.env
+libreservice.db
+libreservice.db-journal
+libreservice.db-wal
+libreservice.db-shm
+uploads/*
+!uploads/.gitkeep

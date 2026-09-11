@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion — LibreService</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="connexion">
+<header class="entete" id="entete"></header>
+
+<main class="conteneur" style="max-width:440px;">
+  <h1 class="section-titre" style="margin-top:20px;">Connexion</h1>
+
+  <div class="carte">
+    <div id="zone-message"></div>
+    <form id="form-connexion">
+      <div class="champ">
+        <label for="email">Email</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="champ">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" required>
+      </div>
+      <button type="submit" class="btn pleine-largeur" id="btn-connexion">Se connecter</button>
+    </form>
+    <p style="text-align:center; margin-top:14px; font-size:0.9rem;">
+      Pas encore de compte ? <a href="/pages/inscription.html">Inscrivez-vous</a>
+    </p>
+  </div>
+</main>
+
+<p class="pied">LibreService — MVP • Libreville, Gabon</p>
+
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('form-connexion').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  viderAlerte('zone-message');
+
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('btn-connexion');
+  btn.disabled = true; btn.textContent = 'Connexion...';
+
+  try {
+    const data = await api('/auth/connexion', { method: 'POST', body: JSON.stringify({ email, password }) });
+    Session.setSession(data.token, data.user);
+
+    const retour = new URLSearchParams(window.location.search).get('retour');
+    if (retour) { window.location.href = retour; return; }
+
+    if (data.user.role === 'admin') window.location.href = '/pages/admin.html';
+    else if (data.user.role === 'prestataire') window.location.href = '/pages/profil.html';
+    else window.location.href = '/pages/recherche.html';
+  } catch (err) {
+    afficherAlerte('zone-message', err.message, 'erreur');
+    btn.disabled = false; btn.textContent = 'Se connecter';
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messagerie — LibreService</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="messages">
+<header class="entete" id="entete"></header>
+
+<main class="conteneur" id="contenu">
+  <p class="vide">Chargement…</p>
+</main>
+
+<script src="/js/app.js"></script>
+<script>
+if (!Session.estConnecte()) {
+  window.location.href = '/pages/connexion.html?retour=' + encodeURIComponent('/pages/messages.html');
+}
+
+const contenu = document.getElementById('contenu');
+const contactParam = new URLSearchParams(window.location.search).get('contact');
+
+async function afficherListe() {
+  contenu.innerHTML = `
+    <h1 class="section-titre" style="margin-top:20px;">Messages</h1>
+    <div id="liste-conversations"><p class="vide">Chargement…</p></div>
+  `;
+
+  try {
+    const { conversations } = await api('/messages/conversations');
+    const liste = document.getElementById('liste-conversations');
+
+    if (conversations.length === 0) {
+      liste.innerHTML = '<p class="vide">Aucune conversation pour le moment. Contactez un prestataire depuis sa fiche pour démarrer une discussion.</p>';
+      return;
+    }
+
+    liste.innerHTML = conversations.map(c => `
+      <a class="conversation-item" href="?contact=${c.contact.id}">
+        <div>
+          <div style="font-weight:700;">${echapperHtml(c.contact.nom)}</div>
+          <div style="font-size:0.85rem; color:var(--couleur-texte-clair);">${echapperHtml((c.dernier_message.contenu || '').slice(0, 60))}</div>
+        </div>
+        ${c.non_lus > 0 ? `<span class="bulle-non-lu">${c.non_lus}</span>` : ''}
+      </a>
+    `).join('');
+  } catch (e) {
+    document.getElementById('liste-conversations').innerHTML = `<div class="alerte erreur">${echapperHtml(e.message)}</div>`;
+  }
+}
+
+async function afficherConversation(contactId) {
+  contenu.innerHTML = `
+    <div style="display:flex; align-items:center; gap:10px; margin-top:20px;">
+      <a href="/pages/messages.html" style="font-size:1.3rem;">←</a>
+      <h1 class="section-titre" style="margin:0;" id="titre-contact">Conversation</h1>
+    </div>
+    <div class="fil-messages" id="fil-messages"><p class="vide">Chargement…</p></div>
+    <form class="zone-saisie" id="form-envoi">
+      <input type="text" id="input-message" placeholder="Écrivez votre message..." required>
+      <button type="submit" class="btn">Envoyer</button>
+    </form>
+  `;
+
+  const moi = Session.getUser();
+
+  async function rafraichir() {
+    const { messages } = await api('/messages/' + contactId);
+    const fil = document.getElementById('fil-messages');
+
+    if (messages.length === 0) {
+      fil.innerHTML = '<p class="vide">Démarrez la conversation en envoyant un message.</p>';
+    } else {
+      fil.innerHTML = messages.map(m => `
+        <div class="message-bulle ${m.expediteur_id === moi.id ? 'envoye' : 'recu'}">
+          ${echapperHtml(m.contenu)}
+          <span class="heure">${formaterHeure(m.date)}</span>
+        </div>
+      `).join('');
+      fil.scrollTop = fil.scrollHeight;
+    }
+  }
+
+  document.getElementById('form-envoi').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('input-message');
+    const contenuMsg = input.value.trim();
+    if (!contenuMsg) return;
+    input.value = '';
+    try {
+      await api('/messages', { method: 'POST', body: JSON.stringify({ destinataire_id: contactId, contenu: contenuMsg }) });
+      rafraichir();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+
+  await rafraichir();
+}
+
+if (contactParam) {
+  afficherConversation(parseInt(contactParam, 10));
+} else {
+  afficherListe();
+}
+</script>
+</body>
+</html>

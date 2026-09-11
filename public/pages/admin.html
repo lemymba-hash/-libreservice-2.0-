@@ -1,0 +1,3425 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Administration | LibreService Gabon
+</title>
+
+
+<link
+rel="stylesheet"
+href="/css/style.css"
+>
+
+
+<link
+rel="stylesheet"
+href="/css/admin.css"
+>
+
+</head>
+
+
+<body class="admin-body">
+
+
+<div class="admin-layout">
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="admin-sidebar">
+
+
+<div class="admin-logo">
+
+<div class="admin-logo-icon">
+
+🇬🇦
+
+</div>
+
+
+<div class="admin-logo-text">
+
+LibreService
+
+<span>
+
+ADMINISTRATION
+
+</span>
+
+</div>
+
+</div>
+
+
+
+<nav class="admin-menu">
+
+
+<div class="menu-label">
+
+Principal
+
+</div>
+
+
+<button
+class="admin-menu-item actif"
+onclick="changerPage('dashboard')"
+id="menu-dashboard"
+>
+
+<span class="menu-icon">
+
+🏠
+
+</span>
+
+<span>
+
+Tableau de bord
+
+</span>
+
+</button>
+
+
+
+<div class="menu-label">
+
+Gestion
+
+</div>
+
+
+<button
+class="admin-menu-item"
+onclick="changerPage('utilisateurs')"
+id="menu-utilisateurs"
+>
+
+<span class="menu-icon">
+
+👥
+
+</span>
+
+<span>
+
+Utilisateurs
+
+</span>
+
+</button>
+
+
+
+<button
+class="admin-menu-item"
+onclick="changerPage('prestataires')"
+id="menu-prestataires"
+>
+
+<span class="menu-icon">
+
+🔧
+
+</span>
+
+<span>
+
+Prestataires
+
+</span>
+
+</button>
+
+
+
+<button
+class="admin-menu-item"
+onclick="changerPage('validations')"
+id="menu-validations"
+>
+
+<span class="menu-icon">
+
+⏳
+
+</span>
+
+<span>
+
+Validations
+
+</span>
+
+<span
+class="menu-badge"
+id="badge-attente"
+>
+
+0
+
+</span>
+
+</button>
+
+
+
+<div class="menu-label">
+
+Contrôle
+
+</div>
+
+
+<button
+class="admin-menu-item"
+onclick="changerPage('avis')"
+id="menu-avis"
+>
+
+<span class="menu-icon">
+
+⭐
+
+</span>
+
+<span>
+
+Avis signalés
+
+</span>
+
+</button>
+
+
+
+<button
+class="admin-menu-item"
+onclick="changerPage('statistiques')"
+id="menu-statistiques"
+>
+
+<span class="menu-icon">
+
+📊
+
+</span>
+
+<span>
+
+Statistiques
+
+</span>
+
+</button>
+
+
+
+<button
+class="admin-menu-item"
+onclick="changerPage('activite')"
+id="menu-activite"
+>
+
+<span class="menu-icon">
+
+📋
+
+</span>
+
+<span>
+
+Journal d'activité
+
+</span>
+
+</button>
+
+
+
+<div class="menu-label">
+
+Système
+
+</div>
+
+
+<button
+class="admin-menu-item"
+onclick="changerPage('parametres')"
+id="menu-parametres"
+>
+
+<span class="menu-icon">
+
+⚙️
+
+</span>
+
+<span>
+
+Paramètres
+
+</span>
+
+</button>
+
+
+</nav>
+
+
+
+<!-- PROFIL ADMIN -->
+
+<div class="admin-user">
+
+<div class="admin-avatar" id="admin-initiales">
+
+A
+
+</div>
+
+
+<div class="admin-user-info">
+
+<div
+class="admin-user-name"
+id="admin-nom"
+>
+
+Administrateur
+
+</div>
+
+
+<div class="admin-user-role">
+
+Super administrateur
+
+</div>
+
+</div>
+
+
+<button
+class="admin-btn admin-btn-danger"
+onclick="deconnexionAdmin()"
+title="Déconnexion"
+>
+
+↪
+
+</button>
+
+
+</div>
+
+
+</aside>
+
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="admin-main">
+
+
+<!-- TOPBAR -->
+
+<header class="admin-topbar">
+
+
+<div class="admin-page-title">
+
+<h1 id="page-titre">
+
+Tableau de bord
+
+</h1>
+
+
+<p id="page-description">
+
+Vue générale et pilotage de LibreService Gabon.
+
+</p>
+
+
+</div>
+
+
+
+<div class="topbar-actions">
+
+
+<div class="admin-search">
+
+<span>
+
+⌕
+
+</span>
+
+<input
+type="text"
+placeholder="Rechercher..."
+>
+
+</div>
+
+
+
+<button
+class="notification-btn"
+title="Notifications"
+>
+
+🔔
+
+<span class="notification-dot">
+
+</span>
+
+</button>
+
+
+</div>
+
+
+</header>
+
+
+
+<!-- CONTENU -->
+
+<section
+class="admin-content"
+id="admin-contenu"
+>
+
+<div class="admin-empty">
+
+Chargement du tableau de bord...
+
+</div>
+
+
+</section>
+
+
+</main>
+
+
+</div>
+
+
+
+<script src="/js/app.js"></script>
+
+
+<script>
+
+
+/* =====================================================
+   SECURITE
+===================================================== */
+
+const utilisateur =
+Session.getUser();
+
+
+if (
+    !utilisateur ||
+    utilisateur.role !== 'admin'
+) {
+
+    window.location.href =
+        '/pages/connexion.html?retour=' +
+        encodeURIComponent('/pages/admin.html');
+
+}
+
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+const contenu =
+document.getElementById('admin-contenu');
+
+
+let pageActive =
+'dashboard';
+
+
+let statistiquesCache =
+null;
+
+
+
+/* =====================================================
+   INITIALISATION ADMIN
+===================================================== */
+
+function initialiserAdmin() {
+
+    if (!utilisateur) return;
+
+
+    const nom =
+    utilisateur.nom || 'Administrateur';
+
+
+    document.getElementById('admin-nom')
+        .textContent = nom;
+
+
+    const initiales =
+    nom
+    .split(' ')
+    .map(n => n.charAt(0))
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
+
+
+    document.getElementById(
+        'admin-initiales'
+    ).textContent = initiales;
+
+}
+
+
+
+initialiserAdmin();
+
+
+
+/* =====================================================
+   CHANGER PAGE
+===================================================== */
+
+function changerPage(page) {
+
+
+    pageActive = page;
+
+
+    document
+    .querySelectorAll('.admin-menu-item')
+    .forEach(item => {
+
+        item.classList.remove('actif');
+
+    });
+
+
+    const menu =
+    document.getElementById(
+        'menu-' + page
+    );
+
+
+    if (menu) {
+
+        menu.classList.add('actif');
+
+    }
+
+
+    chargerPage(page);
+
+}
+
+
+
+/* =====================================================
+   TITRES
+===================================================== */
+
+const pagesInfos = {
+
+    dashboard: {
+
+        titre:
+        'Tableau de bord',
+
+        description:
+        'Vue générale et pilotage de LibreService Gabon.'
+
+    },
+
+
+    utilisateurs: {
+
+        titre:
+        'Gestion des utilisateurs',
+
+        description:
+        'Consultez et analysez les comptes enregistrés sur la plateforme.'
+
+    },
+
+
+    prestataires: {
+
+        titre:
+        'Gestion des prestataires',
+
+        description:
+        'Supervision des professionnels inscrits sur LibreService.'
+
+    },
+
+
+    validations: {
+
+        titre:
+        'Centre de validation',
+
+        description:
+        'Examinez et validez les nouveaux profils professionnels.'
+
+    },
+
+
+    avis: {
+
+        titre:
+        'Modération des avis',
+
+        description:
+        'Traitez les avis signalés par les utilisateurs.'
+
+    },
+
+
+    statistiques: {
+
+        titre:
+        'Statistiques',
+
+        description:
+        'Analyse détaillée de l’activité de la plateforme.'
+
+    },
+
+
+    activite: {
+
+        titre:
+        'Journal d’activité',
+
+        description:
+        'Historique des événements récents de la plateforme.'
+
+    },
+
+
+    parametres: {
+
+        titre:
+        'Paramètres',
+
+        description:
+        'Configuration générale de LibreService.'
+
+    }
+
+};
+
+
+
+function mettreAJourTitre(page) {
+
+
+    const info =
+    pagesInfos[page];
+
+
+    document.getElementById(
+        'page-titre'
+    ).textContent =
+    info.titre;
+
+
+    document.getElementById(
+        'page-description'
+    ).textContent =
+    info.description;
+
+}
+
+
+
+/* =====================================================
+   API STATISTIQUES
+===================================================== */
+
+async function obtenirStatistiques() {
+
+
+    const statistiques =
+    await api('/admin/statistiques');
+
+
+    statistiquesCache =
+    statistiques;
+
+
+    const badge =
+    document.getElementById(
+        'badge-attente'
+    );
+
+
+    if (badge) {
+
+        badge.textContent =
+        statistiques.nb_prestataires_en_attente;
+
+    }
+
+
+    return statistiques;
+
+}
+
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+async function afficherDashboard() {
+
+
+    const s =
+    await obtenirStatistiques();
+
+
+    const totalUtilisateurs =
+    s.nb_clients +
+    s.nb_prestataires_inscrits;
+
+
+    contenu.innerHTML = `
+
+
+    <!-- STATISTIQUES -->
+
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon green">
+
+                    👥
+
+                </div>
+
+
+                <span class="stat-trend">
+
+                    Plateforme
+
+                </span>
+
+            </div>
+
+
+            <div class="stat-value">
+
+                ${totalUtilisateurs}
+
+            </div>
+
+
+            <div class="stat-label">
+
+                Utilisateurs inscrits
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon blue">
+
+                    🔧
+
+                </div>
+
+
+                <span class="stat-trend">
+
+                    Actifs
+
+                </span>
+
+            </div>
+
+
+            <div class="stat-value">
+
+                ${s.nb_prestataires_valides}
+
+            </div>
+
+
+            <div class="stat-label">
+
+                Prestataires validés
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon yellow">
+
+                    ⏳
+
+                </div>
+
+
+                <span class="stat-trend">
+
+                    À traiter
+
+                </span>
+
+            </div>
+
+
+            <div class="stat-value">
+
+                ${s.nb_prestataires_en_attente}
+
+            </div>
+
+
+            <div class="stat-label">
+
+                Profils en attente
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-card-top">
+
+                <div class="stat-icon red">
+
+                    ⭐
+
+                </div>
+
+
+                <span class="stat-trend">
+
+                    Qualité
+
+                </span>
+
+            </div>
+
+
+            <div class="stat-value">
+
+                ${
+                    s.note_moyenne_globale ??
+                    '—'
+                }
+
+            </div>
+
+
+            <div class="stat-label">
+
+                Satisfaction moyenne
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- GRAPHIQUES -->
+
+
+    <div class="dashboard-grid">
+
+
+        <div class="admin-card">
+
+
+            <div class="admin-card-header">
+
+
+                <div>
+
+
+                    <h3 class="admin-card-title">
+
+                        Activité de la plateforme
+
+                    </h3>
+
+
+                    <div class="admin-card-subtitle">
+
+                        Aperçu général des interactions
+
+                    </div>
+
+
+                </div>
+
+
+                <span class="status-badge status-active">
+
+                    ● En activité
+
+                </span>
+
+
+            </div>
+
+
+
+            <div class="admin-card-body">
+
+
+                <div class="chart-area">
+
+
+                    <div
+                    class="chart-bar"
+                    style="height:35%"
+                    ></div>
+
+
+                    <div
+                    class="chart-bar"
+                    style="height:55%"
+                    ></div>
+
+
+                    <div
+                    class="chart-bar"
+                    style="height:42%"
+                    ></div>
+
+
+                    <div
+                    class="chart-bar"
+                    style="height:70%"
+                    ></div>
+
+
+                    <div
+                    class="chart-bar"
+                    style="height:60%"
+                    ></div>
+
+
+                    <div
+                    class="chart-bar"
+                    style="height:82%"
+                    ></div>
+
+
+                    <div
+                    class="chart-bar"
+                    style="height:95%"
+                    ></div>
+
+
+                </div>
+
+
+                <div class="chart-labels">
+
+                    <span>Lun</span>
+                    <span>Mar</span>
+                    <span>Mer</span>
+                    <span>Jeu</span>
+                    <span>Ven</span>
+                    <span>Sam</span>
+                    <span>Dim</span>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="admin-card">
+
+
+            <div class="admin-card-header">
+
+                <div>
+
+                    <h3 class="admin-card-title">
+
+                        Indicateurs rapides
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-card-body">
+
+
+                <div class="activity-list">
+
+
+                    <div class="activity-item">
+
+                        <div class="activity-icon">
+
+                            💬
+
+                        </div>
+
+
+                        <div class="activity-text">
+
+                            <strong>
+
+                                ${s.nb_messages}
+
+                            </strong>
+
+                            messages échangés.
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="activity-item">
+
+                        <div class="activity-icon">
+
+                            🔗
+
+                        </div>
+
+
+                        <div class="activity-text">
+
+                            <strong>
+
+                                ${s.nb_mises_en_relation}
+
+                            </strong>
+
+                            mises en relation.
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="activity-item">
+
+                        <div class="activity-icon">
+
+                            ⭐
+
+                        </div>
+
+
+                        <div class="activity-text">
+
+                            <strong>
+
+                                ${s.nb_avis}
+
+                            </strong>
+
+                            avis enregistrés.
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ACTION PRIORITAIRE -->
+
+
+    <div class="admin-card">
+
+
+        <div class="admin-card-header">
+
+
+            <div>
+
+
+                <h3 class="admin-card-title">
+
+                    Actions prioritaires
+
+                </h3>
+
+
+                <div class="admin-card-subtitle">
+
+                    Éléments nécessitant votre attention.
+
+                </div>
+
+
+            </div>
+
+
+            <button
+            class="admin-btn admin-btn-primary"
+            onclick="changerPage('validations')"
+            >
+
+                Voir les validations
+
+            </button>
+
+
+        </div>
+
+
+
+        <div class="admin-card-body">
+
+
+            <div class="detail-grid">
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Prestataires en attente
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${s.nb_prestataires_en_attente}
+                        profils à examiner
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Avis publiés
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${s.nb_avis}
+                        avis enregistrés
+
+                    </div>
+
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   UTILISATEURS
+===================================================== */
+
+async function afficherUtilisateurs() {
+
+
+    const data =
+    await api('/admin/utilisateurs');
+
+
+    const utilisateurs =
+    data.utilisateurs;
+
+
+    contenu.innerHTML = `
+
+
+    <div class="admin-card">
+
+
+        <div class="admin-toolbar">
+
+
+            <div class="filter-group">
+
+
+                <select
+                class="admin-select"
+                id="filtre-role"
+                onchange="filtrerUtilisateurs()"
+                >
+
+                    <option value="">
+
+                        Tous les rôles
+
+                    </option>
+
+
+                    <option value="client">
+
+                        Chercheurs de service
+
+                    </option>
+
+
+                    <option value="prestataire">
+
+                        Prestataires
+
+                    </option>
+
+
+                    <option value="admin">
+
+                        Administrateurs
+
+                    </option>
+
+
+                </select>
+
+
+                <input
+                class="admin-select"
+                type="text"
+                id="recherche-utilisateur"
+                placeholder="Rechercher un utilisateur..."
+                oninput="filtrerUtilisateurs()"
+                >
+
+
+            </div>
+
+
+            <div>
+
+                ${utilisateurs.length}
+                utilisateur(s)
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="admin-table-wrapper">
+
+
+            <table class="admin-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>Utilisateur</th>
+
+                        <th>Rôle</th>
+
+                        <th>Quartier</th>
+
+                        <th>Téléphone</th>
+
+                        <th>Inscription</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="liste-utilisateurs">
+
+
+                    ${utilisateurs.map(u => `
+
+
+                    <tr
+                    data-role="${u.role}"
+                    data-search="${echapperHtml(
+                        (
+                            u.nom +
+                            ' ' +
+                            u.email
+                        ).toLowerCase()
+                    )}"
+                    >
+
+
+                        <td>
+
+
+                            <div class="user-cell">
+
+
+                                <div class="table-avatar">
+
+                                    ${initialesNom(u.nom)}
+
+                                </div>
+
+
+                                <div>
+
+
+                                    <div class="table-name">
+
+                                        ${echapperHtml(u.nom)}
+
+                                    </div>
+
+
+                                    <div class="table-subtext">
+
+                                        ${echapperHtml(u.email)}
+
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+
+
+                        </td>
+
+
+
+                        <td>
+
+                            ${badgeRole(u.role)}
+
+                        </td>
+
+
+
+                        <td>
+
+                            ${echapperHtml(
+                                u.quartier || '—'
+                            )}
+
+                        </td>
+
+
+
+                        <td>
+
+                            ${echapperHtml(
+                                u.telephone || '—'
+                            )}
+
+                        </td>
+
+
+
+                        <td>
+
+                            ${formaterDate(
+                                u.date_inscription
+                            )}
+
+                        </td>
+
+
+                    </tr>
+
+
+                    `).join('')}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+    </div>
+
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   FILTRER UTILISATEURS
+===================================================== */
+
+function filtrerUtilisateurs() {
+
+
+    const role =
+    document.getElementById(
+        'filtre-role'
+    ).value;
+
+
+    const recherche =
+    document.getElementById(
+        'recherche-utilisateur'
+    ).value
+    .toLowerCase();
+
+
+    document
+    .querySelectorAll(
+        '#liste-utilisateurs tr'
+    )
+    .forEach(ligne => {
+
+
+        const correspondRole =
+        !role ||
+        ligne.dataset.role === role;
+
+
+        const correspondRecherche =
+        ligne.dataset.search
+        .includes(recherche);
+
+
+        ligne.style.display =
+        correspondRole &&
+        correspondRecherche
+
+        ? ''
+
+        : 'none';
+
+
+    });
+
+}
+
+
+
+/* =====================================================
+   PRESTATAIRES
+===================================================== */
+
+async function afficherPrestataires() {
+
+
+    const [valides, attente, refuses] =
+    await Promise.all([
+
+        api(
+            '/admin/prestataires?statut=valide'
+        ),
+
+        api(
+            '/admin/prestataires?statut=en_attente'
+        ),
+
+        api(
+            '/admin/prestataires?statut=refuse'
+        )
+
+    ]);
+
+
+    const prestataires = [
+
+        ...valides.prestataires.map(p => ({
+            ...p,
+            statut: 'valide'
+        })),
+
+        ...attente.prestataires.map(p => ({
+            ...p,
+            statut: 'en_attente'
+        })),
+
+        ...refuses.prestataires.map(p => ({
+            ...p,
+            statut: 'refuse'
+        }))
+
+    ];
+
+
+    contenu.innerHTML = `
+
+
+    <div class="admin-card">
+
+
+        <div class="admin-toolbar">
+
+
+            <div class="filter-group">
+
+
+                <select
+                class="admin-select"
+                id="filtre-prestataire"
+                onchange="filtrerPrestataires()"
+                >
+
+                    <option value="">
+
+                        Tous les statuts
+
+                    </option>
+
+
+                    <option value="valide">
+
+                        Validés
+
+                    </option>
+
+
+                    <option value="en_attente">
+
+                        En attente
+
+                    </option>
+
+
+                    <option value="refuse">
+
+                        Refusés
+
+                    </option>
+
+
+                </select>
+
+
+            </div>
+
+
+            <div>
+
+                ${prestataires.length}
+                professionnel(s)
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="admin-table-wrapper">
+
+
+            <table class="admin-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>Professionnel</th>
+
+                        <th>Métier</th>
+
+                        <th>Localisation</th>
+
+                        <th>Statut</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="liste-prestataires">
+
+
+                    ${prestataires.map(p => `
+
+
+                    <tr
+                    data-statut="${p.statut}"
+                    >
+
+
+                        <td>
+
+
+                            <div class="user-cell">
+
+
+                                <div class="table-avatar">
+
+                                    ${initialesNom(p.nom)}
+
+                                </div>
+
+
+                                <div>
+
+
+                                    <div class="table-name">
+
+                                        ${echapperHtml(p.nom)}
+
+                                    </div>
+
+
+                                    <div class="table-subtext">
+
+                                        ${echapperHtml(p.email)}
+
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+
+
+                        </td>
+
+
+
+                        <td>
+
+                            ${echapperHtml(p.metier)}
+
+                        </td>
+
+
+
+                        <td>
+
+                            ${echapperHtml(
+                                p.quartier || '—'
+                            )}
+
+                        </td>
+
+
+
+                        <td>
+
+                            ${badgeStatut(p.statut)}
+
+                        </td>
+
+
+
+                        <td>
+
+
+                            <div class="action-buttons">
+
+
+                                ${
+
+                                    p.statut !== 'valide'
+
+                                    ?
+
+                                    `
+
+                                    <button
+                                    class="admin-btn admin-btn-success"
+                                    onclick="changerStatutPrestataire(
+                                        ${p.id},
+                                        'valide'
+                                    )"
+                                    >
+
+                                        Valider
+
+                                    </button>
+
+                                    `
+
+                                    :
+
+                                    ''
+
+                                }
+
+
+
+                                ${
+
+                                    p.statut !== 'refuse'
+
+                                    ?
+
+                                    `
+
+                                    <button
+                                    class="admin-btn admin-btn-danger"
+                                    onclick="changerStatutPrestataire(
+                                        ${p.id},
+                                        'refuse'
+                                    )"
+                                    >
+
+                                        Refuser
+
+                                    </button>
+
+                                    `
+
+                                    :
+
+                                    ''
+
+                                }
+
+
+                            </div>
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                    `).join('')}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+    </div>
+
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   FILTRE PRESTATAIRES
+===================================================== */
+
+function filtrerPrestataires() {
+
+
+    const statut =
+    document.getElementById(
+        'filtre-prestataire'
+    ).value;
+
+
+    document
+    .querySelectorAll(
+        '#liste-prestataires tr'
+    )
+    .forEach(ligne => {
+
+
+        ligne.style.display =
+
+        !statut ||
+
+        ligne.dataset.statut === statut
+
+        ? ''
+
+        : 'none';
+
+
+    });
+
+}
+
+
+
+/* =====================================================
+   VALIDATIONS
+===================================================== */
+
+async function afficherValidations() {
+
+
+    const data =
+    await api(
+        '/admin/prestataires?statut=en_attente'
+    );
+
+
+    const prestataires =
+    data.prestataires;
+
+
+    if (
+        prestataires.length === 0
+    ) {
+
+
+        contenu.innerHTML = `
+
+        <div class="admin-card">
+
+            <div class="admin-empty">
+
+                <div class="admin-empty-icon">
+
+                    ✓
+
+                </div>
+
+                <h3>
+
+                    Tout est à jour
+
+                </h3>
+
+                <p>
+
+                    Aucun prestataire n'attend actuellement
+                    une validation.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        `;
+
+
+        return;
+
+    }
+
+
+
+    contenu.innerHTML = `
+
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div class="stat-value">
+
+                ${prestataires.length}
+
+            </div>
+
+
+            <div class="stat-label">
+
+                Profils à examiner
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    ${prestataires.map(p => `
+
+
+    <div class="admin-card">
+
+
+        <div class="admin-card-header">
+
+
+            <div class="user-cell">
+
+
+                <div class="table-avatar">
+
+                    ${initialesNom(p.nom)}
+
+                </div>
+
+
+                <div>
+
+
+                    <div class="admin-card-title">
+
+                        ${echapperHtml(p.nom)}
+
+                    </div>
+
+
+                    <div class="admin-card-subtitle">
+
+                        Inscrit le
+                        ${formaterDate(
+                            p.date_inscription
+                        )}
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            ${badgeStatut('en_attente')}
+
+
+        </div>
+
+
+
+        <div class="admin-card-body">
+
+
+            <div class="detail-grid">
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Métier
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${echapperHtml(p.metier)}
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Quartier
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${echapperHtml(
+                            p.quartier || 'Non renseigné'
+                        )}
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Email
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${echapperHtml(p.email)}
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Téléphone
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${echapperHtml(
+                            p.telephone || 'Non renseigné'
+                        )}
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div
+            class="action-buttons"
+            style="margin-top:20px;"
+            >
+
+
+                <button
+                class="admin-btn admin-btn-success"
+                onclick="changerStatutPrestataire(
+                    ${p.id},
+                    'valide'
+                )"
+                >
+
+                    ✓ Valider le profil
+
+                </button>
+
+
+
+                <button
+                class="admin-btn admin-btn-danger"
+                onclick="changerStatutPrestataire(
+                    ${p.id},
+                    'refuse'
+                )"
+                >
+
+                    ✕ Refuser
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    `).join('')}`;
+
+}
+
+
+
+/* =====================================================
+   MODERATION AVIS
+===================================================== */
+
+async function afficherAvis() {
+
+
+    const data =
+    await api(
+        '/admin/avis?statut=signale'
+    );
+
+
+    const avis =
+    data.avis;
+
+
+    contenu.innerHTML = `
+
+
+    <div class="admin-card">
+
+
+        <div class="admin-card-header">
+
+
+            <div>
+
+
+                <h3 class="admin-card-title">
+
+                    Avis nécessitant une modération
+
+                </h3>
+
+
+                <div class="admin-card-subtitle">
+
+                    ${avis.length}
+                    avis signalé(s)
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="admin-table-wrapper">
+
+
+            <table class="admin-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>Client</th>
+
+                        <th>Service</th>
+
+                        <th>Note</th>
+
+                        <th>Commentaire</th>
+
+                        <th>Décision</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    ${
+
+                        avis.length === 0
+
+                        ?
+
+                        `
+
+                        <tr>
+
+                            <td
+                            colspan="5"
+                            class="admin-empty"
+                            >
+
+                                Aucun avis signalé.
+
+                            </td>
+
+                        </tr>
+
+                        `
+
+                        :
+
+                        avis.map(a => `
+
+
+                        <tr>
+
+
+                            <td>
+
+                                ${echapperHtml(
+                                    a.client_nom
+                                )}
+
+                            </td>
+
+
+
+                            <td>
+
+                                ${echapperHtml(
+                                    a.metier
+                                )}
+
+                            </td>
+
+
+
+                            <td>
+
+                                ⭐ ${a.note}/5
+
+                            </td>
+
+
+
+                            <td>
+
+                                ${echapperHtml(
+                                    a.commentaire || '—'
+                                )}
+
+                            </td>
+
+
+
+                            <td>
+
+
+                                <div class="action-buttons">
+
+
+                                    <button
+                                    class="admin-btn admin-btn-success"
+                                    onclick="changerStatutAvis(
+                                        ${a.id},
+                                        'visible'
+                                    )"
+                                    >
+
+                                        Garder
+
+                                    </button>
+
+
+
+                                    <button
+                                    class="admin-btn admin-btn-danger"
+                                    onclick="changerStatutAvis(
+                                        ${a.id},
+                                        'masque'
+                                    )"
+                                    >
+
+                                        Masquer
+
+                                    </button>
+
+
+                                </div>
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                        `).join('')
+
+                    }
+
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+    </div>
+
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   STATISTIQUES DETAILLEES
+===================================================== */
+
+async function afficherStatistiques() {
+
+
+    const s =
+    await obtenirStatistiques();
+
+
+    contenu.innerHTML = `
+
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div class="stat-value">
+
+                ${s.nb_clients}
+
+            </div>
+
+
+            <div class="stat-label">
+
+                Chercheurs de services
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-value">
+
+                ${s.nb_prestataires_inscrits}
+
+            </div>
+
+
+            <div class="stat-label">
+
+                Prestataires inscrits
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-value">
+
+                ${s.nb_prestataires_valides}
+
+            </div>
+
+
+            <div class="stat-label">
+
+                Prestataires actifs
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-value">
+
+                ${s.nb_mises_en_relation}
+
+            </div>
+
+
+            <div class="stat-label">
+
+                Mises en relation
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <div class="admin-card">
+
+
+        <div class="admin-card-header">
+
+
+            <div>
+
+                <h3 class="admin-card-title">
+
+                    Indicateurs de performance
+
+                </h3>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="admin-card-body">
+
+
+            <div class="detail-grid">
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Messages échangés
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${s.nb_messages}
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Avis enregistrés
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${s.nb_avis}
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Note moyenne
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${
+                            s.note_moyenne_globale ??
+                            'Non disponible'
+                        }
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Taux de validation
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        ${calculerTauxValidation(s)}%
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   JOURNAL ACTIVITE
+===================================================== */
+
+async function afficherActivite() {
+
+
+    const s =
+    statistiquesCache ||
+    await obtenirStatistiques();
+
+
+    const maintenant =
+    new Date()
+    .toLocaleString('fr-FR');
+
+
+    contenu.innerHTML = `
+
+
+    <div class="admin-card">
+
+
+        <div class="admin-card-header">
+
+
+            <div>
+
+
+                <h3 class="admin-card-title">
+
+                    Activité récente
+
+                </h3>
+
+
+                <div class="admin-card-subtitle">
+
+                    Historique général disponible actuellement.
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="admin-card-body">
+
+
+            <div class="activity-list">
+
+
+                <div class="activity-item">
+
+
+                    <div class="activity-icon">
+
+                        👥
+
+                    </div>
+
+
+                    <div class="activity-text">
+
+                        La plateforme compte actuellement
+
+                        <strong>
+
+                            ${
+                                s.nb_clients +
+                                s.nb_prestataires_inscrits
+                            }
+
+                        </strong>
+
+                        utilisateurs.
+
+                        <span class="activity-time">
+
+                            Mise à jour :
+                            ${maintenant}
+
+                        </span>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="activity-item">
+
+
+                    <div class="activity-icon">
+
+                        ⏳
+
+                    </div>
+
+
+                    <div class="activity-text">
+
+                        <strong>
+
+                            ${s.nb_prestataires_en_attente}
+
+                        </strong>
+
+                        profils professionnels nécessitent
+                        une validation.
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="activity-item">
+
+
+                    <div class="activity-icon">
+
+                        💬
+
+                    </div>
+
+
+                    <div class="activity-text">
+
+                        <strong>
+
+                            ${s.nb_messages}
+
+                        </strong>
+
+                        messages ont été échangés
+                        sur la plateforme.
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="activity-item">
+
+
+                    <div class="activity-icon">
+
+                        ⭐
+
+                    </div>
+
+
+                    <div class="activity-text">
+
+                        <strong>
+
+                            ${s.nb_avis}
+
+                        </strong>
+
+                        avis sont enregistrés.
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   PARAMETRES
+===================================================== */
+
+function afficherParametres() {
+
+
+    contenu.innerHTML = `
+
+
+    <div class="admin-card">
+
+
+        <div class="admin-card-header">
+
+            <div>
+
+                <h3 class="admin-card-title">
+
+                    Informations de la plateforme
+
+                </h3>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="admin-card-body">
+
+
+            <div class="detail-grid">
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Nom
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        LibreService Gabon
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Version
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        2.0
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Pays
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        🇬🇦 Gabon
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <div class="detail-label">
+
+                        Rôle connecté
+
+                    </div>
+
+
+                    <div class="detail-value">
+
+                        Administrateur
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <div class="admin-card">
+
+
+        <div class="admin-card-header">
+
+            <div>
+
+                <h3 class="admin-card-title">
+
+                    Zone dangereuse
+
+                </h3>
+
+            </div>
+
+        </div>
+
+
+        <div class="admin-card-body">
+
+
+            <p style="font-size:12px;color:#74807b;">
+
+                Les actions sensibles doivent être
+                réalisées avec prudence.
+
+            </p>
+
+
+            <button
+            class="admin-btn admin-btn-danger"
+            onclick="deconnexionAdmin()"
+            >
+
+                Se déconnecter
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   ACTIONS API
+===================================================== */
+
+async function changerStatutPrestataire(
+    id,
+    statut
+) {
+
+
+    const message =
+
+    statut === 'valide'
+
+    ?
+
+    'Voulez-vous valider ce prestataire ?'
+
+    :
+
+    'Voulez-vous refuser ce prestataire ?';
+
+
+    if (!confirm(message)) {
+
+        return;
+
+    }
+
+
+    try {
+
+
+        await api(
+
+            '/admin/prestataires/' +
+            id +
+            '/statut',
+
+            {
+
+                method: 'PUT',
+
+                body:
+                JSON.stringify({
+                    statut
+                })
+
+            }
+
+        );
+
+
+        alert(
+            'Statut modifié avec succès.'
+        );
+
+
+        changerPage(
+            pageActive
+        );
+
+
+    }
+
+    catch (e) {
+
+        alert(e.message);
+
+    }
+
+}
+
+
+
+async function changerStatutAvis(
+    id,
+    statut
+) {
+
+
+    try {
+
+
+        await api(
+
+            '/admin/avis/' +
+            id +
+            '/statut',
+
+            {
+
+                method: 'PUT',
+
+                body:
+                JSON.stringify({
+                    statut
+                })
+
+            }
+
+        );
+
+
+        changerPage('avis');
+
+
+    }
+
+    catch (e) {
+
+        alert(e.message);
+
+    }
+
+}
+
+
+
+/* =====================================================
+   CHARGEMENT DES PAGES
+===================================================== */
+
+async function chargerPage(page) {
+
+
+    mettreAJourTitre(page);
+
+
+    contenu.innerHTML = `
+
+    <div class="admin-empty">
+
+        Chargement...
+
+    </div>
+
+    `;
+
+
+    try {
+
+
+        if (page === 'dashboard') {
+
+            await afficherDashboard();
+
+        }
+
+
+        else if (
+            page === 'utilisateurs'
+        ) {
+
+            await afficherUtilisateurs();
+
+        }
+
+
+        else if (
+            page === 'prestataires'
+        ) {
+
+            await afficherPrestataires();
+
+        }
+
+
+        else if (
+            page === 'validations'
+        ) {
+
+            await afficherValidations();
+
+        }
+
+
+        else if (
+            page === 'avis'
+        ) {
+
+            await afficherAvis();
+
+        }
+
+
+        else if (
+            page === 'statistiques'
+        ) {
+
+            await afficherStatistiques();
+
+        }
+
+
+        else if (
+            page === 'activite'
+        ) {
+
+            await afficherActivite();
+
+        }
+
+
+        else if (
+            page === 'parametres'
+        ) {
+
+            afficherParametres();
+
+        }
+
+
+    }
+
+    catch (e) {
+
+
+        contenu.innerHTML = `
+
+
+        <div class="admin-card">
+
+
+            <div class="admin-empty">
+
+
+                <div class="admin-empty-icon">
+
+                    ⚠️
+
+                </div>
+
+
+                <h3>
+
+                    Erreur de chargement
+
+                </h3>
+
+
+                <p>
+
+                    ${echapperHtml(
+                        e.message
+                    )}
+
+                </p>
+
+
+                <button
+                class="admin-btn admin-btn-primary"
+                onclick="chargerPage(
+                    '${page}'
+                )"
+                >
+
+                    Réessayer
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+        `;
+
+
+    }
+
+}
+
+
+
+/* =====================================================
+   OUTILS
+===================================================== */
+
+function initialesNom(nom) {
+
+
+    if (!nom) return '?';
+
+
+    return nom
+        .split(' ')
+        .map(partie =>
+            partie.charAt(0)
+        )
+        .join('')
+        .substring(0, 2)
+        .toUpperCase();
+
+}
+
+
+
+function badgeRole(role) {
+
+
+    if (role === 'admin') {
+
+        return `
+
+        <span
+        class="status-badge status-admin"
+        >
+
+            Administrateur
+
+        </span>
+
+        `;
+
+    }
+
+
+    if (role === 'prestataire') {
+
+        return `
+
+        <span
+        class="status-badge status-valide"
+        >
+
+            Prestataire
+
+        </span>
+
+        `;
+
+    }
+
+
+    return `
+
+    <span
+    class="status-badge status-client"
+    >
+
+        Client
+
+    </span>
+
+    `;
+
+}
+
+
+
+function badgeStatut(statut) {
+
+
+    const textes = {
+
+        valide:
+        'Validé',
+
+        en_attente:
+        'En attente',
+
+        refuse:
+        'Refusé'
+
+    };
+
+
+    const classes = {
+
+        valide:
+        'status-valide',
+
+        en_attente:
+        'status-attente',
+
+        refuse:
+        'status-refuse'
+
+    };
+
+
+    return `
+
+    <span
+    class="
+        status-badge
+        ${classes[statut]}
+    "
+    >
+
+        ${textes[statut]}
+
+    </span>
+
+    `;
+
+}
+
+
+
+function formaterDate(date) {
+
+
+    if (!date) return '—';
+
+
+    try {
+
+
+        return new Date(date)
+        .toLocaleDateString(
+
+            'fr-FR',
+
+            {
+
+                day: '2-digit',
+
+                month: 'short',
+
+                year: 'numeric'
+
+            }
+
+        );
+
+
+    }
+
+    catch {
+
+        return date;
+
+    }
+
+}
+
+
+
+function calculerTauxValidation(s) {
+
+
+    if (
+        !s.nb_prestataires_inscrits
+    ) {
+
+        return 0;
+
+    }
+
+
+    return Math.round(
+
+        (
+            s.nb_prestataires_valides /
+            s.nb_prestataires_inscrits
+        )
+
+        * 100
+
+    );
+
+}
+
+
+
+/* =====================================================
+   DECONNEXION
+===================================================== */
+
+function deconnexionAdmin() {
+
+
+    if (
+
+        !confirm(
+            'Voulez-vous vous déconnecter ?'
+        )
+
+    ) {
+
+        return;
+
+    }
+
+
+    Session.clear();
+
+
+    window.location.href = '/';
+
+}
+
+
+
+/* =====================================================
+   DEMARRAGE
+===================================================== */
+
+changerPage('dashboard');
+
+
+</script>
+
+
+</body>
+
+</html>

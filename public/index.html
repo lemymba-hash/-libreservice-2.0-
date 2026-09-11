@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="description"
+content="LibreService vous permet de trouver facilement des prestataires de confiance au Gabon.">
+
+<title>LibreService Gabon | Trouvez un prestataire de confiance</title>
+
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+
+<body data-page="accueil">
+
+
+<header class="entete" id="entete"></header>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+<div class="conteneur">
+
+<div style="max-width:850px;">
+
+<div style="
+display:inline-flex;
+align-items:center;
+gap:8px;
+padding:7px 14px;
+background:rgba(255,255,255,0.12);
+border:1px solid rgba(255,255,255,0.15);
+border-radius:50px;
+font-size:0.8rem;
+font-weight:600;
+margin-bottom:20px;
+">
+
+🇬🇦 La plateforme des services au Gabon
+
+</div>
+
+
+<h1>
+
+Trouvez le bon professionnel,
+près de chez vous.
+
+</h1>
+
+
+<p>
+
+Plombier, électricien, coiffeur, mécanicien, enseignant ou aide à domicile.
+LibreService vous connecte avec des prestataires de confiance.
+
+</p>
+
+
+<form
+class="recherche-rapide"
+id="form-recherche-rapide"
+>
+
+<select id="rr-categorie">
+
+<option value="">
+Quel service recherchez-vous ?
+</option>
+
+</select>
+
+
+<select id="rr-quartier">
+
+<option value="">
+Choisissez votre quartier
+</option>
+
+</select>
+
+
+<button
+type="submit"
+class="btn"
+>
+
+🔍 Rechercher
+
+</button>
+
+</form>
+
+
+<div style="
+display:flex;
+gap:22px;
+flex-wrap:wrap;
+margin-top:22px;
+font-size:0.82rem;
+color:rgba(255,255,255,0.7);
+">
+
+<span>✓ Prestataires vérifiés</span>
+
+<span>✓ Service gratuit</span>
+
+<span>✓ 100% local</span>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- CONTENU -->
+
+<main class="conteneur">
+
+
+<section>
+
+<h2 class="section-titre">
+
+Les services les plus recherchés
+
+</h2>
+
+
+<div
+class="grille-categories"
+id="grille-categories"
+>
+
+</div>
+
+</section>
+
+
+
+<!-- COMMENT CA MARCHE -->
+
+<section style="margin-bottom:60px;">
+
+<h2 class="section-titre">
+
+Comment ça fonctionne ?
+
+</h2>
+
+
+<div class="grille-categories">
+
+
+<div class="carte-categorie">
+
+<div class="emoji">
+
+🔎
+
+</div>
+
+<div class="titre">
+
+Recherchez
+
+</div>
+
+<div class="exemples">
+
+Choisissez un métier ou un quartier.
+
+</div>
+
+</div>
+
+
+
+<div class="carte-categorie">
+
+<div class="emoji">
+
+👤
+
+</div>
+
+<div class="titre">
+
+Comparez
+
+</div>
+
+<div class="exemples">
+
+Consultez les profils et les avis.
+
+</div>
+
+</div>
+
+
+
+<div class="carte-categorie">
+
+<div class="emoji">
+
+💬
+
+</div>
+
+<div class="titre">
+
+Contactez
+
+</div>
+
+<div class="exemples">
+
+Échangez directement avec le prestataire.
+
+</div>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- PRESTATAIRES -->
+
+<section>
+
+<div class="carte"
+style="
+background:
+linear-gradient(
+135deg,
+#073d2e,
+#0b6b4f
+);
+color:white;
+padding:40px;
+border:none;
+">
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:30px;
+flex-wrap:wrap;
+">
+
+<div style="max-width:650px;">
+
+<div style="
+font-size:0.75rem;
+font-weight:700;
+color:#f5c518;
+text-transform:uppercase;
+letter-spacing:1px;
+margin-bottom:10px;
+">
+
+VOUS ÊTES PROFESSIONNEL ?
+
+</div>
+
+
+<h2 style="
+font-size:1.8rem;
+margin:0 0 10px;
+">
+
+Développez votre activité avec LibreService.
+
+</h2>
+
+
+<p style="
+margin:0;
+color:rgba(255,255,255,0.75);
+">
+
+Créez votre profil professionnel et faites-vous découvrir
+par des clients dans votre quartier.
+
+</p>
+
+</div>
+
+
+<a
+href="/pages/inscription.html?role=prestataire"
+class="btn accent"
+>
+
+Créer mon profil professionnel
+
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+
+</main>
+
+
+<footer class="pied">
+
+<div>
+
+<strong style="color:white;font-size:1rem;">
+
+🇬🇦 LibreService
+
+</strong>
+
+<p style="margin:6px 0;">
+
+La plateforme locale qui connecte les Gabonais aux professionnels.
+
+</p>
+
+<p style="margin:0;">
+
+© 2026 LibreService Gabon • Tous droits réservés
+
+</p>
+
+</div>
+
+</footer>
+
+
+
+<script src="/js/app.js"></script>
+
+
+<script>
+
+async function init() {
+
+try {
+
+const ref = await api('/prestataires/reference');
+
+
+/* CATEGORIES */
+
+const selCat =
+document.getElementById('rr-categorie');
+
+
+ref.categories.forEach(c => {
+
+const opt =
+document.createElement('option');
+
+opt.value = c.id;
+
+opt.textContent = c.label;
+
+selCat.appendChild(opt);
+
+});
+
+
+/* QUARTIERS */
+
+const selQuartier =
+document.getElementById('rr-quartier');
+
+
+ref.quartiers.forEach(q => {
+
+const opt =
+document.createElement('option');
+
+opt.value = q;
+
+opt.textContent = q;
+
+selQuartier.appendChild(opt);
+
+});
+
+
+/* GRILLE */
+
+const grille =
+document.getElementById('grille-categories');
+
+
+grille.innerHTML =
+ref.categories.map(c => `
+
+<a
+class="carte-categorie"
+href="/pages/recherche.html?categorie=${encodeURIComponent(c.id)}"
+>
+
+<div class="emoji">
+
+${CATEGORIE_EMOJI[c.id] || '🛠️'}
+
+</div>
+
+
+<div class="titre">
+
+${echapperHtml(c.label)}
+
+</div>
+
+
+<div class="exemples">
+
+${echapperHtml(c.exemples)}
+
+</div>
+
+</a>
+
+`).join('');
+
+
+}
+
+catch (e) {
+
+console.error(e);
+
+}
+
+}
+
+
+/* RECHERCHE */
+
+document
+.getElementById('form-recherche-rapide')
+.addEventListener('submit', (e) => {
+
+e.preventDefault();
+
+
+const categorie =
+document.getElementById('rr-categorie').value;
+
+
+const quartier =
+document.getElementById('rr-quartier').value;
+
+
+const params =
+new URLSearchParams();
+
+
+if (categorie) {
+
+params.set('categorie', categorie);
+
+}
+
+
+if (quartier) {
+
+params.set('quartier', quartier);
+
+}
+
+
+window.location.href =
+'/pages/recherche.html?' +
+params.toString();
+
+});
+
+
+init();
+
+</script>
+
+
+</body>
+
+</html>

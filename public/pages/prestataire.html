@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiche prestataire — LibreService</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="prestataire">
+<header class="entete" id="entete"></header>
+
+<main class="conteneur" id="contenu">
+  <p class="vide">Chargement…</p>
+</main>
+
+<p class="pied">LibreService — MVP • Libreville, Gabon</p>
+
+<script src="/js/app.js"></script>
+<script>
+const id = new URLSearchParams(window.location.search).get('id');
+const contenu = document.getElementById('contenu');
+
+function carteAvis(a) {
+  return `
+    <div class="avis-item">
+      <div class="etoiles">${etoiles(a.note)}</div>
+      <div class="auteur">${echapperHtml(a.client_nom)}</div>
+      <div class="date">${formaterDate(a.date)}</div>
+      ${a.commentaire ? `<p style="margin:6px 0 0;">${echapperHtml(a.commentaire)}</p>` : ''}
+    </div>
+  `;
+}
+
+async function contacter(destinataireId) {
+  if (!Session.estConnecte()) {
+    window.location.href = '/pages/connexion.html?retour=' + encodeURIComponent(window.location.pathname + window.location.search);
+    return;
+  }
+  window.location.href = '/pages/messages.html?contact=' + destinataireId;
+}
+
+async function envoyerAvis(prestataireId, userId) {
+  const note = document.getElementById('nouvel-avis-note').value;
+  const commentaire = document.getElementById('nouvel-avis-commentaire').value;
+  try {
+    await api('/avis', { method: 'POST', body: JSON.stringify({ prestataire_id: prestataireId, note, commentaire }) });
+    afficherAlerte('zone-avis-message', 'Merci, votre avis a été publié.', 'succes');
+    charger();
+  } catch (e) {
+    afficherAlerte('zone-avis-message', e.message, 'erreur');
+  }
+}
+
+async function charger() {
+  try {
+    const data = await api('/prestataires/' + id);
+    const p = data.prestataire;
+    const user = Session.getUser();
+
+    const photo = p.photo
+      ? `<img class="photo-grande" src="${p.photo}" alt="${echapperHtml(p.nom)}">`
+      : `<div class="photo-grande">${CATEGORIE_EMOJI[p.categorie] || '🛠️'}</div>`;
+
+    const badge = p.statut === 'valide'
+      ? '<span class="badge">✓ Profil vérifié</span>'
+      : p.statut === 'en_attente'
+        ? '<span class="badge attente">En attente de validation</span>'
+        : '<span class="badge refuse">Profil refusé</span>';
+
+    const noteHtml = p.nombre_avis > 0
+      ? `<span class="note">${etoiles(p.note_moyenne)} ${p.note_moyenne.toFixed(1)}/5</span> · ${p.nombre_avis} avis`
+      : 'Pas encore d\'avis';
+
+    let peutContacter = '';
+    if (!user || user.role === 'client') {
+      peutContacter = `<button class="btn pleine-largeur" id="btn-contacter">💬 Contacter ${echapperHtml(p.nom.split(' ')[0])}</button>
+        <a class="btn secondaire pleine-largeur" style="margin-top:8px;" href="tel:${echapperHtml(p.telephone)}">📞 ${echapperHtml(p.telephone)}</a>`;
+    }
+
+    let formulaireAvis = '';
+    if (user && user.role === 'client') {
+      formulaireAvis = `
+        <div class="carte">
+          <h3 style="margin-top:0;">Laisser un avis</h3>
+          <div id="zone-avis-message"></div>
+          <div class="champ">
+            <label for="nouvel-avis-note">Note</label>
+            <select id="nouvel-avis-note">
+              <option value="5">★★★★★ (5)</option>
+              <option value="4">★★★★☆ (4)</option>
+              <option value="3">★★★☆☆ (3)</option>
+              <option value="2">★★☆☆☆ (2)</option>
+              <option value="1">★☆☆☆☆ (1)</option>
+            </select>
+          </div>
+          <div class="champ">
+            <label for="nouvel-avis-commentaire">Commentaire (optionnel)</label>
+            <textarea id="nouvel-avis-commentaire" placeholder="Votre expérience avec ce prestataire..."></textarea>
+          </div>
+          <button class="btn pleine-largeur" id="btn-envoyer-avis">Publier mon avis</button>
+        </div>
+      `;
+    }
+
+    contenu.innerHTML = `
+      <div class="carte">
+        <div class="entete-fiche">
+          ${photo}
+          <div>
+            <h1 style="margin:0 0 4px; font-size:1.3rem;">${echapperHtml(p.nom)}</h1>
+            <div style="color:var(--couleur-primaire); font-weight:600;">${echapperHtml(p.metier)}</div>
+            <div style="margin-top:4px;">${badge}</div>
+          </div>
+        </div>
+        <hr style="border:none; border-top:1px solid var(--couleur-bordure); margin:16px 0;">
+        <p><strong>📍 Quartier :</strong> ${echapperHtml(p.quartier || 'Non précisé')}</p>
+        ${p.tarif_indicatif ? `<p><strong>💰 Tarif indicatif :</strong> ${echapperHtml(p.tarif_indicatif)}</p>` : ''}
+        <p><strong>⭐ Réputation :</strong> ${noteHtml}</p>
+        ${p.description ? `<p style="margin-top:12px;">${echapperHtml(p.description)}</p>` : ''}
+        <div style="margin-top:16px;">${peutContacter}</div>
+      </div>
+
+      ${formulaireAvis}
+
+      <h2 class="section-titre">Avis clients (${data.avis.length})</h2>
+      <div class="carte">
+        ${data.avis.length ? data.avis.map(carteAvis).join('') : '<p class="vide">Aucun avis pour le moment.</p>'}
+      </div>
+    `;
+
+    const btnContacter = document.getElementById('btn-contacter');
+    if (btnContacter) btnContacter.addEventListener('click', () => contacter(p.user_id));
+
+    const btnAvis = document.getElementById('btn-envoyer-avis');
+    if (btnAvis) btnAvis.addEventListener('click', () => envoyerAvis(p.id, p.user_id));
+
+  } catch (e) {
+    contenu.innerHTML = `<div class="alerte erreur">${echapperHtml(e.message)}</div>`;
+  }
+}
+
+charger();
+</script>
+</body>
+</html>

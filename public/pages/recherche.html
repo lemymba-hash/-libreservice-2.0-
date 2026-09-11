@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rechercher un prestataire — LibreService</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="recherche">
+<header class="entete" id="entete"></header>
+
+<main class="conteneur">
+  <h1 class="section-titre" style="margin-top:20px;">Rechercher un prestataire</h1>
+
+  <div class="carte">
+    <form id="form-filtres">
+      <div class="champ">
+        <label for="f-categorie">Catégorie de service</label>
+        <select id="f-categorie"><option value="">Toutes catégories</option></select>
+      </div>
+      <div class="champ">
+        <label for="f-quartier">Quartier</label>
+        <select id="f-quartier"><option value="">Tous quartiers</option></select>
+      </div>
+      <div class="champ">
+        <label for="f-recherche">Mot-clé (métier, description)</label>
+        <input type="text" id="f-recherche" placeholder="ex: électricien, coiffure...">
+      </div>
+      <button type="submit" class="btn pleine-largeur">Filtrer</button>
+    </form>
+  </div>
+
+  <p id="compteur-resultats" style="color:var(--couleur-texte-clair); font-size:0.9rem;"></p>
+  <div class="liste-prestataires" id="liste-resultats"></div>
+</main>
+
+<p class="pied">LibreService — MVP • Libreville, Gabon</p>
+
+<script src="/js/app.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+
+async function chargerReferences() {
+  const ref = await api('/prestataires/reference');
+  const selCat = document.getElementById('f-categorie');
+  ref.categories.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id; opt.textContent = c.label;
+    selCat.appendChild(opt);
+  });
+  const selQuartier = document.getElementById('f-quartier');
+  ref.quartiers.forEach(q => {
+    const opt = document.createElement('option');
+    opt.value = q; opt.textContent = q;
+    selQuartier.appendChild(opt);
+  });
+
+  if (params.get('categorie')) selCat.value = params.get('categorie');
+  if (params.get('quartier')) selQuartier.value = params.get('quartier');
+  if (params.get('q')) document.getElementById('f-recherche').value = params.get('q');
+}
+
+function carteResultat(p) {
+  const photo = p.photo
+    ? `<img class="photo" src="${p.photo}" alt="${echapperHtml(p.nom)}">`
+    : `<div class="photo">${(CATEGORIE_EMOJI[p.categorie] || '🛠️')}</div>`;
+  const note = p.nombre_avis > 0
+    ? `<span class="note">${etoiles(p.note_moyenne)} ${p.note_moyenne.toFixed(1)}</span> <span style="color:var(--couleur-texte-clair); font-size:0.8rem;">(${p.nombre_avis} avis)</span>`
+    : `<span style="color:var(--couleur-texte-clair); font-size:0.82rem;">Pas encore d'avis</span>`;
+
+  return `
+    <a class="carte-prestataire" href="/pages/prestataire.html?id=${p.id}">
+      ${photo}
+      <div class="infos">
+        <div class="nom">${echapperHtml(p.nom)}</div>
+        <div class="metier">${echapperHtml(p.metier)}</div>
+        <div class="meta">📍 ${echapperHtml(p.quartier || 'Non précisé')} ${p.tarif_indicatif ? '• 💰 ' + echapperHtml(p.tarif_indicatif) : ''}</div>
+        <div class="meta">${note}</div>
+      </div>
+    </a>
+  `;
+}
+
+async function rechercher() {
+  const categorie = document.getElementById('f-categorie').value;
+  const quartier = document.getElementById('f-quartier').value;
+  const q = document.getElementById('f-recherche').value.trim();
+
+  const search = new URLSearchParams();
+  if (categorie) search.set('categorie', categorie);
+  if (quartier) search.set('quartier', quartier);
+  if (q) search.set('q', q);
+
+  window.history.replaceState(null, '', '?' + search.toString());
+
+  const conteneur = document.getElementById('liste-resultats');
+  conteneur.innerHTML = '<p class="vide">Recherche en cours…</p>';
+
+  try {
+    const data = await api('/prestataires?' + search.toString());
+    document.getElementById('compteur-resultats').textContent =
+      data.total + ' prestataire' + (data.total > 1 ? 's' : '') + ' trouvé' + (data.total > 1 ? 's' : '');
+
+    if (data.resultats.length === 0) {
+      conteneur.innerHTML = '<p class="vide">Aucun prestataire ne correspond à votre recherche pour le moment.</p>';
+    } else {
+      conteneur.innerHTML = data.resultats.map(carteResultat).join('');
+    }
+  } catch (e) {
+    conteneur.innerHTML = `<div class="alerte erreur">${echapperHtml(e.message)}</div>`;
+  }
+}
+
+document.getElementById('form-filtres').addEventListener('submit', (e) => {
+  e.preventDefault();
+  rechercher();
+});
+
+(async () => {
+  await chargerReferences();
+  rechercher();
+})();
+</script>
+</body>
+</html>

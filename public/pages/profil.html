@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon profil — LibreService</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="profil">
+<header class="entete" id="entete"></header>
+
+<main class="conteneur" id="contenu">
+  <p class="vide">Chargement…</p>
+</main>
+
+<p class="pied">LibreService — MVP • Libreville, Gabon</p>
+
+<script src="/js/app.js"></script>
+<script>
+if (!Session.estConnecte()) {
+  window.location.href = '/pages/connexion.html?retour=' + encodeURIComponent('/pages/profil.html');
+}
+
+const contenu = document.getElementById('contenu');
+
+async function chargerCategories() {
+  const ref = await api('/prestataires/reference');
+  return ref.categories;
+}
+
+async function envoyerPhoto(fichier) {
+  const form = new FormData();
+  form.append('photo', fichier);
+  const data = await api('/prestataires/moi/photo', { method: 'POST', body: form });
+  return data.photo;
+}
+
+async function charger() {
+  try {
+    const { user, prestataire } = await api('/auth/moi');
+
+    if (user.role === 'client') {
+      contenu.innerHTML = `
+        <h1 class="section-titre" style="margin-top:20px;">Mon profil</h1>
+        <div class="carte">
+          <p><strong>Nom :</strong> ${echapperHtml(user.nom)}</p>
+          <p><strong>Email :</strong> ${echapperHtml(user.email)}</p>
+          <p><strong>Téléphone :</strong> ${echapperHtml(user.telephone)}</p>
+          <p><strong>Quartier :</strong> ${echapperHtml(user.quartier || 'Non renseigné')}</p>
+        </div>
+        <a class="btn pleine-largeur" href="/pages/recherche.html">🔍 Rechercher un prestataire</a>
+      `;
+      return;
+    }
+
+    // Profil prestataire
+    const categories = await chargerCategories();
+    const badge = prestataire.statut === 'valide'
+      ? '<span class="badge">✓ Profil validé et visible</span>'
+      : prestataire.statut === 'en_attente'
+        ? '<span class="badge attente">⏳ En attente de validation par un administrateur</span>'
+        : '<span class="badge refuse">✗ Profil refusé — contactez le support</span>';
+
+    const photo = prestataire.photo
+      ? `<img class="photo-grande" src="${prestataire.photo}" alt="Photo de profil">`
+      : `<div class="photo-grande">${CATEGORIE_EMOJI[prestataire.categorie] || '🛠️'}</div>`;
+
+    contenu.innerHTML = `
+      <h1 class="section-titre" style="margin-top:20px;">Mon profil prestataire</h1>
+      <div class="carte">
+        <div style="margin-bottom:12px;">${badge}</div>
+        <div style="display:flex; gap:14px; align-items:center; margin-bottom:16px;">
+          ${photo}
+          <div>
+            <input type="file" id="input-photo" accept="image/*">
+            <div class="aide">Photo de profil (3 Mo max)</div>
+          </div>
+        </div>
+        <div id="zone-message"></div>
+        <div class="champ">
+          <label for="categorie">Catégorie</label>
+          <select id="categorie">
+            ${categories.map(c => `<option value="${c.id}" ${c.id === prestataire.categorie ? 'selected' : ''}>${echapperHtml(c.label)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="champ">
+          <label for="metier">Métier précis</label>
+          <input type="text" id="metier" value="${echapperHtml(prestataire.metier)}">
+        </div>
+        <div class="champ">
+          <label for="tarif_indicatif">Tarif indicatif</label>
+          <input type="text" id="tarif_indicatif" value="${echapperHtml(prestataire.tarif_indicatif || '')}">
+        </div>
+        <div class="champ">
+          <label for="quartier">Quartier</label>
+          <input type="text" id="quartier" value="${echapperHtml(user.quartier || '')}">
+        </div>
+        <div class="champ">
+          <label for="description">Description</label>
+          <textarea id="description">${echapperHtml(prestataire.description || '')}</textarea>
+        </div>
+        <button class="btn pleine-largeur" id="btn-enregistrer">Enregistrer les modifications</button>
+      </div>
+      <div class="carte">
+        <p><strong>⭐ Réputation :</strong> ${prestataire.nombre_avis > 0 ? etoiles(prestataire.note_moyenne) + ' ' + prestataire.note_moyenne.toFixed(1) + '/5 (' + prestataire.nombre_avis + ' avis)' : "Pas encore d'avis"}</p>
+        <a href="/pages/prestataire.html?id=${prestataire.id}" class="btn secondaire pleine-largeur">Voir ma fiche publique</a>
+      </div>
+    `;
+
+    document.getElementById('input-photo').addEventListener('change', async (e) => {
+      if (!e.target.files[0]) return;
+      try {
+        await envoyerPhoto(e.target.files[0]);
+        charger();
+      } catch (err) {
+        afficherAlerte('zone-message', err.message, 'erreur');
+      }
+    });
+
+    document.getElementById('btn-enregistrer').addEventListener('click', async () => {
+      viderAlerte('zone-message');
+      try {
+        await api('/prestataires/moi/profil', {
+          method: 'PUT',
+          body: JSON.stringify({
+            categorie: document.getElementById('categorie').value,
+            metier: document.getElementById('metier').value.trim(),
+            tarif_indicatif: document.getElementById('tarif_indicatif').value.trim(),
+            description: document.getElementById('description').value.trim(),
+            quartier: document.getElementById('quartier').value.trim(),
+          }),
+        });
+        afficherAlerte('zone-message', 'Profil mis à jour avec succès.', 'succes');
+      } catch (err) {
+        afficherAlerte('zone-message', err.message, 'erreur');
+      }
+    });
+
+  } catch (e) {
+    contenu.innerHTML = `<div class="alerte erreur">${echapperHtml(e.message)}</div>`;
+  }
+}
+
+charger();
+</script>
+</body>
+</html>
