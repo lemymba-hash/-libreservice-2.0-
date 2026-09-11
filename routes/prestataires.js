@@ -12,7 +12,7 @@ const { CATEGORIES, QUARTIERS_LIBREVILLE } = require('../constants');
 const router = express.Router();
 
 // --- Upload de photo de profil (stockage local simple pour le MVP) ---
-const uploadDir = path.join(__dirname, '..', 'uploads');
+const uploadDir = path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(__dirname, '..'), 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({

@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 // Fichiers uploadés (photos de profil des prestataires)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname, 'uploads')));
 
 // API
 app.use('/api/auth', authRoutes);
